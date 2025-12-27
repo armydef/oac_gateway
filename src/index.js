@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const config = require('./config.js')
 const express = require("express");
 const axios = require("axios");
@@ -34,9 +35,8 @@ app.use((req, res, next) => {
 
 app.all("/:service/{*any}", async (req, res, next) => {
   try {
+    const serviceName = req.params.service
     
-    const serviceName = req.params.service;
-
     // Get services list
     const { data: services } = await axios.get(config.url_register);
     
@@ -72,6 +72,7 @@ app.all("/:service/{*any}", async (req, res, next) => {
       responseType: "stream"
     }
 
+    // codeql [js/request-forgery]: false positive: 'service' is validated against a register
     const response = await axios(options);
     for (const key in response.headers) {
       res.setHeader(key, response.headers[key]);
