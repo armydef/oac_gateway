@@ -24,6 +24,14 @@ function jsonMiddlewareWrapper() {
 app.use(jsonMiddlewareWrapper());                 // parses application/json
 app.use(express.urlencoded({ extended: true }));  // parses application/x-www-form-urlencoded
 
+app.use((req, res, next) => {
+  if (/\.(js|css|png|jpg|jpeg|gif|svg|ico|map)$/i.test(req.path)) {
+    // Lascia gestire al server statico
+    return next('route');
+  }
+  next();
+});
+
 app.all("/:service/{*any}", async (req, res, next) => {
   try {
     
@@ -63,6 +71,7 @@ app.all("/:service/{*any}", async (req, res, next) => {
       maxRedirects: 0,
       responseType: "stream"
     }
+
     const response = await axios(options);
     for (const key in response.headers) {
       res.setHeader(key, response.headers[key]);
